@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Change your home IP
+
+# Check if the script is running in a Docker container
+if [ -f "/.dockerenv" ]; then
+    echo "This script is running in a Docker container."
+else
+    echo "This script should be executed inside a Docker container."
+    exit 1
+fi
+
+# Configure /etc/hosts
+echo "127.0.0.2 localhost" | sudo tee -a /etc/hosts
+echo "8.8.8.8 facebook.com" | sudo tee -a /etc/hosts
+
+# Display the updated /etc/hosts file
+echo "Updated /etc/hosts:"
+cat /etc/hosts

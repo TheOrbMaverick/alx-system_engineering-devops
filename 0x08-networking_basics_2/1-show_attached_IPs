@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Show attached IPs
+
+# Display all active IPv4 IPs on the machine
+ip addr | awk '/inet / {print $2}' | cut -d '/' -f 1
