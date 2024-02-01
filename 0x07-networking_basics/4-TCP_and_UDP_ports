@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Display listening sockets with PID and program name
+
+echo "Active Internet connections (only servers)"
+echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name"
+
+# Display TCP listening ports
+lsof -iTCP -sTCP:LISTEN -n -P | awk '$1 == "LISTEN" {print $0}'
+
+# Display UDP listening ports
+lsof -iUDP -sUDP:LISTEN -n -P | awk '$1 == "LISTEN" {print $0}'
+
+echo "Active UNIX domain sockets (only servers)"
+echo "Proto RefCnt Flags       Type       State         I-Node   PID/Program name    Path"
+
+# Display UNIX domain sockets
+lsof -i -U | awk '$1 == "COMMAND" && $9 == "LISTEN" {print $0}'
