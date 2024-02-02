@@ -10,7 +10,7 @@ end
 text = ARGV[0]
 
 # Regular expression to match the specified cases
-regexp = /hb+t+n/
+regexp = /hb*tn/
 
 # Use scan method to find matches and join the results
 puts text.scan(regexp).join
