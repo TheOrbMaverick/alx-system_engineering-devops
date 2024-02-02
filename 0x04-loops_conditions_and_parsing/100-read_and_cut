@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Display information from /etc/passwd using read and cut
+
+# Check if the file exists
+if [ ! -e /etc/passwd ]; then
+    echo "Error: /etc/passwd does not exist."
+    exit 1
+fi
+
+# Read the file line by line and display the required information
+while IFS=":" read -r username _ uid _ home _; do
+    echo "$username:$uid:$home"
+done < /etc/passwd
