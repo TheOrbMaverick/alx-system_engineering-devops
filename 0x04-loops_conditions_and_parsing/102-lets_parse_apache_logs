@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Display visitor IP along with HTTP status code from Apache log file
+
+# Check if the log file exists
+if [ ! -e apache-access.log ]; then
+    echo "Error: apache-access.log does not exist."
+    exit 1
+fi
+
+# Use awk to parse and display IP and HTTP status code
+awk '{print $1, $9}' apache-access.log

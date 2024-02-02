@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Group visitors by IP and HTTP status code and display data
+
+# Check if the log file exists
+if [ ! -e apache-access.log ]; then
+    echo "Error: apache-access.log does not exist."
+    exit 1
+fi
+
+# Use awk to group by IP and HTTP status code, count occurrences, and sort
+awk '{count[$1" "$9]++} END {for (i in count) print count[i], i}' apache-access.log | sort -nr
