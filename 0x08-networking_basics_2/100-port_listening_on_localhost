@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Port listening on localhost
 
-# Set the listening port
-LISTEN_PORT=98
+# Set the port number
+PORT=98
 
 # Start listening on the specified port
-nc -l -p "$LISTEN_PORT" -e /bin/cat
+nc -l -p $PORT
