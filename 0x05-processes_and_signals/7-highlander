@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# This script stops the 7-highlander process without using kill or killall.
+
+# Find the process ID (PID) of 7-highlander
+process_id=$(pgrep -o -f "7-highlander")
+
+if [ -n "$process_id" ]; then
+    # If the process is running, send a SIGTERM signal
+    kill -s SIGTERM "$process_id"
+else
+    echo "Process not found"
+fi

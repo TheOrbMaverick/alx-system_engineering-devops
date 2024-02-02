@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# This script displays a list of currently running processes.
+
+# Use ps command to display processes, format the output, and show hierarchy
+ps aux --forest --sort=-%cpu,%mem | head -50
