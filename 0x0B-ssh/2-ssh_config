@@ -1,0 +1,11 @@
+# SSH client configuration
+
+# Default settings for all hosts
+Host *
+    # Disable password authentication
+    PasswordAuthentication no
+
+# Configuration for a specific host (replace example.com with your server's IP or domain)
+Host example.com
+    # Use the private key file
+    IdentityFile ~/.ssh/school
