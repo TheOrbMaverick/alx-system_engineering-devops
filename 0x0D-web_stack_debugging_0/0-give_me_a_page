@@ -1,13 +1,7 @@
-<VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html
+#!/bin/bash
 
-    <Directory /var/www/html>
-        Options Indexes FollowSymLinks
-        AllowOverride None
-        Require all granted
-    </Directory>
+# Build Docker image from Dockerfile in the current directory
+docker build -t my-apache-image .
 
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
+# Run Docker container based on the built image, mapping host port 8080 to container port 80
+docker run -p 8080:80 -d my-apache-image
