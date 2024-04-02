@@ -2,6 +2,5 @@
 # Generate the RSA key pair with passphrase
 if [ -f ~/.ssh/school ]; then
     echo "Private key 'school' already exists."
-    exit 1
 fi
 ssh-keygen -b 4096 -N 'betty' -f ~/.ssh/school
