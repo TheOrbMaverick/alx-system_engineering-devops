@@ -1,26 +1,25 @@
-# Ensure SSH client configuration directory exists
-file { '/home/ubuntu/.ssh':
-  ensure  => directory,
-  mode    => '0700',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
+# Define SSH client configuration file path
+$file_path = '/etc/ssh/ssh_config'
+
+# Ensure SSH client configuration file has correct permissions
+file { $file_path:
+  owner => 'root',
+  group => 'root',
+  mode  => '0644',
 }
 
-# Create SSH client configuration file
-file { '/home/ubuntu/.ssh/config':
-  ensure  => present,
-  mode    => '0600',
-  content => "\
-Host <YOUR_SERVER_IP>
-  IdentityFile ~/.ssh/school
-  PasswordAuthentication no\n",
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
+# Ensure SSH client uses the private key ~/.ssh/school
+file_line { 'Declare identity file':
+  path    => $file_path,
+  line    => 'IdentityFile ~/.ssh/school',
+  match   => '^#?IdentityFile',
+  require => File[$file_path],
 }
 
-# Restart SSH service after making changes
-service { 'ssh':
-  ensure    => running,
-  enable    => true,
-  subscribe => File['/home/ubuntu/.ssh/config'],
+# Ensure SSH client refuses to authenticate using a password
+file_line { 'Turn off passwd auth':
+  path    => $file_path,
+  line    => 'PasswordAuthentication no',
+  match   => '^#?PasswordAuthentication',
+  require => File[$file_path],
 }
