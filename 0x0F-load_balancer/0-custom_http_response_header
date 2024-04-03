@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# This script configures Nginx to include a custom HTTP response header (X-Served-By)
+
+# Update package lists and install Nginx
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Configure Nginx to include the custom header
+echo "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    location / {
+        add_header X-Served-By 519510-web-01;
+        root /var/www/html;
+        index index.html index.htm;
+    }
+}" | sudo tee /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+sudo systemctl restart nginx
