@@ -53,6 +53,6 @@ EOF'
 sudo nginx -t
 
 # Reload Nginx to apply the changes
-sudo systemctl reload nginx
+sudo service nginx restart
 
 echo "Custom 404 page configured successfully!"
