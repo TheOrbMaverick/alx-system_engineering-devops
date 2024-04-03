@@ -24,6 +24,25 @@ not_found_page="\
 </html>
 "
 
+# Verify that Nginx is installed and running
+if ! command -v nginx &> /dev/null; then
+    echo "Nginx installation failed. Exiting."
+    exit 1
+fi
+
+# Configure Nginx to listen on port 80 and return "Hello World!" at root
+echo "server {
+    listen 80;
+    server_name _;
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        return 200 'Hello World!';
+        add_header Content-Type text/plain;
+    }
+}" > /etc/nginx/sites-available/default
+
 # Create the custom 404 page file
 echo "$not_found_page" | sudo tee /var/www/html/404.html >/dev/null
 
