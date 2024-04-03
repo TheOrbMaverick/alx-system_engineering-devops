@@ -14,6 +14,8 @@ server {
     listen 80;
     listen [::]:80;
     server_name _;
+
+    rewrite ^/redirect_me https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe permanent;
     
     location /redirect_me {
         return 301 https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe;
@@ -31,6 +33,6 @@ echo "$redirect_config" > /etc/nginx/sites-available/default
 nginx -t
 
 # Reload Nginx to apply the changes
-service nginx reload
+sudo service nginx restart
 
 echo "Nginx redirection configured successfully!"
