@@ -1,29 +1,36 @@
 #!/usr/bin/env bash
-# This script configures Nginx on a new Ubuntu machine to redirect /redirect_me to another page with a 301 status.
+# This script configures Nginx to redirect a specific URL.
 
-# Install Nginx if not already installed
+# Check if Nginx is installed
 if ! command -v nginx &> /dev/null; then
-    apt-get update -y
+    echo "Nginx is not installed. Installing Nginx..."
+    apt-get update
     apt-get install -y nginx
 fi
 
-# Configure Nginx to perform the redirection
-echo "server {
+# Define the redirect configuration
+redirect_config="\
+server {
     listen 80;
+    listen [::]:80;
     server_name _;
-
+    
     location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+        return 301 https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe;
     }
+}
+"
 
-    # Your other server configurations go here if needed
-}" > /etc/nginx/sites-available/redirect_me
+# Backup the default Nginx configuration file
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
 
-# Create a symbolic link to enable the site
-ln -s /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
+# Add the redirect configuration to Nginx
+echo "$redirect_config" > /etc/nginx/sites-available/default
 
-# Restart Nginx to apply changes
-service nginx restart > /dev/null 2>&1
+# Test Nginx configuration for syntax errors
+nginx -t
 
-echo "Nginx configured for redirection successfully."
-exit 0
+# Reload Nginx to apply the changes
+service nginx reload
+
+echo "Nginx redirection configured successfully!"
