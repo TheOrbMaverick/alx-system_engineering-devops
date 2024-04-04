@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # This script configures Nginx to include a custom HTTP response header (X-Served-By)
 
-# Update package lists and install Nginx
-sudo apt-get update
-sudo apt-get install -y nginx
+# Install Nginx if not already installed
+if ! command -v nginx &> /dev/null; then
+    apt-get update
+    apt-get install -y nginx
+fi
 
 # Configure Nginx to include the custom header
 echo "server {
@@ -19,5 +21,16 @@ echo "server {
     }
 }" | sudo tee /etc/nginx/sites-available/default
 
-# Restart Nginx to apply changes
-sudo systemctl restart nginx
+if ! command curl &> dev/null; then
+    apt-get install -y curl
+fi
+
+curl -sI 3.80.19.156 | grep X-Served-By
+
+curl -sI 54.237.70.145 | grep X-Served-By
+
+# Test Nginx configuration for syntax errors
+nginx -t
+
+# Reload Nginx to apply the changes
+service nginx reload
