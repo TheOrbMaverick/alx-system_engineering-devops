@@ -1,7 +1,7 @@
 #!/bin/bash
-
 # Build Docker image from Dockerfile in the current directory
+
 docker build -t my-apache-image .
 
-# Run Docker container based on the built image, mapping host port 8080 to container port 80
+# Run Docker mapping host port 8080 to container port 80
 docker run -p 8080:80 -d my-apache-image
