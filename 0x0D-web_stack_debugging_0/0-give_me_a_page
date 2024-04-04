@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Build Docker image from Dockerfile in the current directory
 
 docker build -t my-apache-image .
