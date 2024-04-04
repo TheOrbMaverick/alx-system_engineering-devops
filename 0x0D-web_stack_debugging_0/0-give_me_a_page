@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Bash script to configure Apache to return "Hello Holberton" on port 8080
 
 # Install Apache if not already installed
