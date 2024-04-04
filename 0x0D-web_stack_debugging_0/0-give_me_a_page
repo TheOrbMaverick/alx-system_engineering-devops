@@ -10,6 +10,12 @@ fi
 # Create a custom index.html file with Hello Holberton content
 echo "Hello Holberton" > index.html
 
+# Create a Dockerfile to configure Apache to serve the custom index.html
+cat <<EOF > Dockerfile
+FROM httpd:latest
+COPY index.html /usr/local/apache2/htdocs/
+EOF
+
 # Build Docker image with tag 'my-apache-image' using Dockerfile in the current directory
 docker build -t my-apache-image . || {
     echo "Error: Docker build failed."
