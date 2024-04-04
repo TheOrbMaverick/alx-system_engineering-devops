@@ -1,31 +1,37 @@
-#!/usr/bin/env bash
-# This script builds a Docker image for Apache serving a custom index.html.
+#!/bin/bash
+# Bash script to configure Apache to return "Hello Holberton" on port 8080
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    echo "Error: Docker is not installed. Please install Docker to proceed."
-    exit 1
+# Install Apache if not already installed
+if ! command -v apache2 &> /dev/null; then
+    echo "Installing Apache..."
+    sudo apt-get update
+    sudo apt-get install -y apache2
 fi
 
-# Create a custom index.html file with Hello Holberton content
-echo "Hello Holberton" > index.html
-
-# Create a Dockerfile to configure Apache to serve the custom index.html
-cat <<EOF > Dockerfile
-FROM httpd:latest
-COPY index.html /usr/local/apache2/htdocs/
+# Create a custom HTML page with "Hello Holberton" content
+cat << EOF | sudo tee /var/www/html/index.html > /dev/null
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Holberton</title>
+</head>
+<body>
+    <h1>Hello Holberton</h1>
+</body>
+</html>
 EOF
 
-# Build Docker image with tag 'my-apache-image' using Dockerfile in the current directory
-docker build -t my-apache-image . || {
-    echo "Error: Docker build failed."
-    exit 1
-}
+# Configure Apache to serve the custom page on port 8080
+cat << EOF | sudo tee /etc/apache2/sites-available/holberton.conf > /dev/null
+<VirtualHost *:8080>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
 
-# Run Docker container mapping host port 8080 to container port 80
-docker run -p 8080:80 -d my-apache-image || {
-    echo "Error: Failed to start Docker container."
-    exit 1
-}
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+EOF
 
-echo "Docker container 'my-apache-image' started successfully."
+# Enable the new configuration and restart Apache
+sudo a2ensite holberton.conf
+sudo systemctl restart apache2
