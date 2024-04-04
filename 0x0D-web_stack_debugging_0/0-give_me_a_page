@@ -1,37 +1,27 @@
 #!/usr/bin/env bash
-# Bash script to configure Apache to return "Hello Holberton" on port 8080
+# Script to configure Apache server and serve a custom page
 
-# Install Apache if not already installed
+# Check if Apache is installed, if not, install it
 if ! command -v apache2 &> /dev/null; then
-    echo "Installing Apache..."
-    sudo apt-get update
-    sudo apt-get install -y apache2
+    echo "Apache is not installed. Installing Apache..."
+    apt-get update
+    apt-get install -y apache2
 fi
 
-# Create a custom HTML page with "Hello Holberton" content
-cat << EOF | sudo tee /var/www/html/index.html > /dev/null
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Hello Holberton</title>
-</head>
-<body>
-    <h1>Hello Holberton</h1>
-</body>
-</html>
-EOF
+# Change "Listen 80" to "Listen 8080" in /etc/apache2/sites-enabled/000-default.conf
+sed -i 's/Listen 80/Listen 8080/g' /etc/apache2/sites-enabled/000-default.conf
 
-# Configure Apache to serve the custom page on port 8080
-cat << EOF | sudo tee /etc/apache2/sites-available/holberton.conf > /dev/null
-<VirtualHost *:8080>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html
+# Change "<VirtualHost *:80>" to "<VirtualHost *:8080>" in /etc/apache2/sites-available/000-default.conf
+sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/g' /etc/apache2/sites-available/000-default.conf
 
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-EOF
+# Create a new file containing "Hello Holberton" called index.html in /var/www/html
+echo "Hello Holberton" > /var/www/html/index.html
 
-# Enable the new configuration and restart Apache
-sudo a2ensite holberton.conf
-sudo systemctl restart apache2
+# Install curl if not already installed
+if ! command -v curl &> /dev/null; then
+    echo "curl is not installed. Installing curl..."
+    apt-get install -y curl
+fi
+
+# Restart Apache to apply changes
+service apache2 restart
