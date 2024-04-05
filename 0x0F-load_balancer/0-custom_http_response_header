@@ -16,7 +16,7 @@ add_custom_header() {
     ssh ubuntu@$ip "sudo sed -i '/server {/a $header' $config_file"
     
     # Restart Nginx to apply the changes using service command
-    ssh ubuntu@$ip "sudo service nginx restart"
+    ssh ubuntu@$ip "sudo systemctl status nginx"
 }
 
 # Main function
