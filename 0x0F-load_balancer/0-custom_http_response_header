@@ -1,25 +1,23 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with custom HTTP response header
 
-
 # First install nginx if it is not installed
-if [! command -v nginx &> dev/null]; then
+if ! command -v nginx &> /dev/null; then
     echo "We are going to have to install nginx..."
     sudo apt update
     sudo apt install nginx -y
 fi
 
 # Check for your hostname to know what server you're on
-hostname = $(hostname)
+hostname=$(hostname)
 
 # Locate the file to change
-file = "/etc/nginx/sites-available/itaenang.tech"
+file="/etc/nginx/sites-available/itaenang.tech"
 
 # Create the header
 header="add_header X-Served-By $hostname;"
 
 # Check if file exists and if it doesn't create it
-# Check if the file exists, if not, create it with specific contents
 if [ ! -f "$file" ]; then
     echo "File $file does not exist. Creating..."
     echo "server {" | sudo tee "$file" > /dev/null
@@ -34,7 +32,6 @@ if [ ! -f "$file" ]; then
     echo "    }" | sudo tee -a "$file" > /dev/null
     echo "}" | sudo tee -a "$file" > /dev/null
     sudo chmod 644 "$file"
-
 fi
 
 # Check if the file already contains the header
