@@ -1,23 +1,50 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with custom HTTP response header
 
-# Function to install Nginx and configure custom HTTP response header
-configure_nginx() {
-    # Install Nginx
+
+# First install nginx if it is not installed
+if [! command -v nginx &> dev/null]; then
+    echo "We are going to have to install nginx..."
     sudo apt update
     sudo apt install nginx -y
+fi
 
-    # Configure custom HTTP response header
-    sudo sh -c 'echo "add_header X-Served-By \$hostname;" >> /etc/nginx/nginx.conf'
+# Check for your hostname to know what server you're on
+hostname = $(hostname)
 
-    # Restart Nginx to apply changes
-    sudo systemctl restart nginx
-}
+# Locate the file to change
+file = "/etc/nginx/sites-available/itaenang.tech"
 
-# Main script
-main() {
-    configure_nginx
-}
+# Create the header
+header="add_header X-Served-By $hostname;"
 
-# Execute main function
-main
+# Check if file exists and if it doesn't create it
+# Check if the file exists, if not, create it with specific contents
+if [ ! -f "$file" ]; then
+    echo "File $file does not exist. Creating..."
+    echo "server {" | sudo tee "$file" > /dev/null
+    echo "    listen 80;" | sudo tee -a "$file" > /dev/null
+    echo "    server_name itaenang.tech www.itaenang.tech;" | sudo tee -a "$file" > /dev/null
+    echo "    $header" | sudo tee -a "$file" > /dev/null
+    echo "    root /var/www/html;" | sudo tee -a "$file" > /dev/null
+    echo "    index index.html index.htm;" | sudo tee -a "$file" > /dev/null
+    echo "" | sudo tee -a "$file" > /dev/null
+    echo "    location / {" | sudo tee -a "$file" > /dev/null
+    echo "        # Additional configuration directives if needed" | sudo tee -a "$file" > /dev/null
+    echo "    }" | sudo tee -a "$file" > /dev/null
+    echo "}" | sudo tee -a "$file" > /dev/null
+    sudo chmod 644 "$file"
+
+fi
+
+# Check if the file already contains the header
+if grep -q "add_header X-Served-By" "$file"; then
+    echo "Error: The header already exists in the file." >&2
+    exit 1
+fi
+
+# Add the header to the file
+echo "$header" | sudo tee -a "$file" > /dev/null
+
+# Create a symbolic link between the sites-available and sites-enabled directories
+sudo ln -s "/etc/nginx/sites-available/itaenang.tech" "/etc/nginx/sites-enabled/itaenang.tech"
