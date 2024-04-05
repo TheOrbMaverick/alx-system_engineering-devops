@@ -1,107 +1,130 @@
 #!/usr/bin/env bash
-# Server configuration file
+# Script to configure Nginx with custom HTTP response header
 
-# Function to transfer a file from client to server using SCP
-transfer_file() {
-    local source_file="$1"
-    local server_ip="$2"
-    local username="$3"
-    local ssh_key="$4"
-
-    echo "Transferring file $source_file to $username@$server_ip..."
-
-    scp -o StrictHostKeyChecking=no -i "$ssh_key" "$source_file" "$username"@"$server_ip":~/ || { echo "Error: File transfer failed."; exit 1; }
-    echo "File transferred successfully."
-}
-
-# Function to install Nginx if not installed
+# First install nginx if it is not installed
 install_nginx() {
     if ! command -v nginx &> /dev/null; then
-        echo "Installing Nginx..."
+        echo "We are going to have to install nginx..."
         sudo apt update
         sudo apt install nginx -y
-        echo "Nginx installed successfully."
-    else
-        echo "Nginx is already installed."
     fi
 }
 
-# Function to configure Nginx with custom HTTP response header
-configure_nginx_header() {
-    local header="add_header X-Custom-Header \"Custom Header Value\";"
+add_header() {
+    # Check for your hostname to know what server you're on
+    hostname=$(hostname)
 
-    # Add header to default Nginx configuration file
-    sudo sed -i '/server {/a '"$header" /etc/nginx/sites-available/default
-    echo "Nginx configured with custom HTTP response header."
-}
+    # Locate the file to change
+    file="/etc/nginx/sites-available/itaenang.tech"
 
-# Function to create a symbolic link between sites-available and sites-enabled
-create_symbolic_link() {
-    local source_file="/etc/nginx/sites-available/default"
-    local destination_file="/etc/nginx/sites-enabled/default"
+    # Create the header
+    header="add_header X-Served-By $hostname;"
 
-    if [ ! -f "$destination_file" ]; then
-        sudo ln -s "$source_file" "$destination_file"
-        echo "Symbolic link created between sites-available and sites-enabled."
+    # Check if file exists and if it doesn't create it
+    if [ ! -f "$file" ]; then
+        echo "server {" | sudo tee "$file" > /dev/null
+        echo "    listen 80;" | sudo tee -a "$file" > /dev/null
+        echo "    server_name itaenang.tech www.itaenang.tech;" | sudo tee -a "$file" > /dev/null
+        echo "    $header" | sudo tee -a "$file" > /dev/null
+        echo "    root /var/www/html;" | sudo tee -a "$file" > /dev/null
+        echo "    index index.html index.htm;" | sudo tee -a "$file" > /dev/null
+        echo "" | sudo tee -a "$file" > /dev/null
+        echo "    location / {" | sudo tee -a "$file" > /dev/null
+        echo "        # Additional configuration directives if needed" | sudo tee -a "$file" > /dev/null
+        echo "    }" | sudo tee -a "$file" > /dev/null
+        echo "}" | sudo tee -a "$file" > /dev/null
+        sudo chmod 644 "$file"
+    fi
+
+    # Check if the file already contains the header
+    if ! grep -q "add_header X-Served-By" "$file"; then
+        echo "$header" | sudo tee -a "$file" > /dev/null
     else
-        echo "Symbolic link already exists."
+        echo "Header already exists in the file." >&2
+    fi
+
+    # Create a symbolic link between the sites-available and sites-enabled directories
+    if [ ! -f "/etc/nginx/sites-enabled/itaenang.tech" ]; then
+        sudo ln -s "/etc/nginx/sites-available/itaenang.tech" "/etc/nginx/sites-enabled/itaenang.tech"
     fi
 }
 
-# Function to define redirection configuration for Nginx
-define_redirection() {
-    local redirection_config="server {
-        listen 80;
-        server_name _;
-        return 301 https://example.com$request_uri;
-    }"
+scp_transfer() {
+    # Check if the correct number of parameters is passed
+    if [ "$#" -ne 4 ]; then
+        echo "Usage: $0 PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+        exit 1
+    fi
 
-    # Backup default Nginx configuration file
-    sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+    # Assign parameters to variables
+    file_path="$1"
+    server_ip="$2"
+    username="$3"
+    ssh_key="$4"
 
-    # Add redirection configuration to Nginx
-    echo "$redirection_config" | sudo tee /etc/nginx/sites-available/default >/dev/null
-    echo "Redirection configuration added to Nginx."
+    # Transfer the file using scp to the server's home directory
+    scp -o StrictHostKeyChecking=no -i "$ssh_key" "$file_path" "$username"@"$server_ip":~/ || exit 1
+
+    echo "File transferred successfully to $username@$server_ip:~/"
 }
 
-# Function to test and reload Nginx to apply changes
-reload_nginx() {
-    sudo nginx -t && sudo systemctl reload nginx
-    echo "Nginx configuration reloaded."
+create_index() {
+    echo "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
 }
 
-# Function to create and configure a custom error page
-create_custom_error_page() {
-    local error_page_content="<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>Sorry, the page you are looking for is not found.</p></body></html>"
-    
-    echo "$error_page_content" | sudo tee /var/www/html/404.html >/dev/null
-    echo "Custom error page created."
+create_404() {
+    echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html >/dev/null
 }
 
-# Main script
+create_default() {
+    # Append the redirect configuration to the default Nginx configuration file
+    cat << EOF | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    root /var/www/html;
+    index index.html;
 
-# Transfer file from client to server
-transfer_file "/path/to/source/file" "server_ip" "username" "/path/to/ssh/key"
+    rewrite ^/redirect_me https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe permanent;
 
-# Install Nginx if not already installed
+    error_page 404 /404.html;
+
+    location / {
+        return 200 'Hello World!';
+        add_header Content-Type text/plain;
+    }
+
+    location = /404.html {
+        internal;
+    }
+
+    location /redirect_me {
+        return 301 https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe;
+    }
+}
+EOF
+
+    # Reload Nginx to apply the changes
+    sudo service nginx reload
+}
+
 install_nginx
 
-# Configure Nginx with custom HTTP response header
-configure_nginx_header
+add_header
 
-# Create symbolic link between sites-available and sites-enabled
-create_symbolic_link
+scp_transfer
 
-# Define redirection configuration for Nginx
-define_redirection
+create_index
 
-# Test and reload Nginx to apply changes
-reload_nginx
+create_404
 
-# Create and configure a custom error page
-create_custom_error_page
+create_default
 
-# Reload Nginx again to apply changes
-reload_nginx
+# Test Nginx configuration for syntax errors
+sudo nginx -t
 
-echo "Configuration completed successfully."
+# Reload Nginx to apply the changes
+sudo service nginx reload
+
+echo "Server configured successfully!"
