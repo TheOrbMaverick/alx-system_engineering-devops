@@ -108,18 +108,17 @@ EOF
     # Reload Nginx to apply the changes
     sudo service nginx reload
 }
+create_index
+
+create_404
+
+create_default
 
 install_nginx
 
 add_header
 
 # scp_transfer
-
-create_index
-
-create_404
-
-create_default
 
 # Test Nginx configuration for syntax errors
 sudo nginx -t
