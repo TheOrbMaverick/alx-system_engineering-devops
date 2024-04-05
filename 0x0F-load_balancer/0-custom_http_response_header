@@ -45,3 +45,108 @@ echo "$header" | sudo tee -a "$file" > /dev/null
 
 # Create a symbolic link between the sites-available and sites-enabled directories
 sudo ln -s "/etc/nginx/sites-available/itaenang.tech" "/etc/nginx/sites-enabled/itaenang.tech"
+
+
+
+
+# Define Redirection
+
+# Define the redirect configuration
+redirect_config="\
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;
+
+    rewrite ^/redirect_me https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe permanent;
+    
+    location /redirect_me {
+        return 301 https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe;
+    }
+}
+"
+
+# Backup the default Nginx configuration file
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+
+# Add the redirect configuration to Nginx
+echo "$redirect_config" > /etc/nginx/sites-available/default
+
+# Test Nginx configuration for syntax errors
+nginx -t
+
+# Reload Nginx to apply the changes
+sudo service nginx restart
+
+echo "Nginx redirection configured successfully!"
+
+
+# Configure error page
+
+# Define the custom 404 page content
+not_found_page="\
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>404 Not Found</title>
+</head>
+<body>
+    <h1>404 Not Found</h1>
+    <p>Ceci n'est pas une page</p>
+</body>
+</html>
+"
+
+# Verify that Nginx is installed and running
+if ! command -v nginx &> /dev/null; then
+    echo "Nginx installation failed. Exiting."
+    exit 1
+fi
+
+# Configure Nginx to listen on port 80 and return "Hello World!" at root
+echo "server {
+    listen 80;
+    server_name _;
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        return 200 'Hello World!';
+        add_header Content-Type text/plain;
+    }
+}" > /etc/nginx/sites-available/default
+
+# Create the custom 404 page file
+echo "$not_found_page" | sudo tee /var/www/html/404.html >/dev/null
+
+# Configure Nginx to use the custom 404 page
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+EOF'
+
+# Test Nginx configuration for syntax errors
+sudo nginx -t
+
+# Reload Nginx to apply the changes
+sudo service nginx restart
+
+echo "Custom 404 page configured successfully!"
