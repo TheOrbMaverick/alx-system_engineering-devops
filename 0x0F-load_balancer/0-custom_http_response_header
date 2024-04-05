@@ -1,28 +1,30 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with custom HTTP response header
 
-# List of servers
+# List of servers and corresponding IPs
 servers=("519510-web-01" "519510-web-02")
+ips=("35.174.200.243" "3.80.19.156")
 
 # Function to add custom header to Nginx configuration file
 add_custom_header() {
     local server=$1
+    local ip=$2
     local header="add_header X-Served-By $(hostname);"
     local config_file="/etc/nginx/sites-available/itaenang.tech"
     
     # SSH into the server and add the header to the Nginx config file
-    ssh $server "sudo sed -i '/server {/a $header' $config_file"
+    ssh ubuntu@$ip "sudo sed -i '/server {/a $header' $config_file"
     
     # Restart Nginx to apply the changes using service command
-    ssh $server "sudo service nginx restart"
+    ssh ubuntu@$ip "sudo service nginx restart"
 }
 
 # Main function
 main() {
-    for server in "${servers[@]}"; do
-        echo "Adding custom header to Nginx configuration on $server..."
-        add_custom_header "$server"
-        echo "Custom header added to Nginx configuration on $server"
+    for (( i=0; i<${#servers[@]}; i++ )); do
+        echo "Adding custom header to Nginx configuration on ${servers[i]}..."
+        add_custom_header "${servers[i]}" "${ips[i]}"
+        echo "Custom header added to Nginx configuration on ${servers[i]}"
     done
 }
 
