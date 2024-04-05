@@ -1,38 +1,16 @@
 #!/usr/bin/env bash
 # Script to configure HaProxy
 
-# Function to install HAProxy
-install_haproxy() {
-    sudo apt update
-    sudo apt install -y haproxy
-}
-
 # Function to configure HAProxy
 configure_haproxy() {
-    # Backup the original HAProxy configuration file
-    sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
-
-    # Configure HAProxy
-    cat << EOF | sudo tee /etc/haproxy/haproxy.cfg > /dev/null
-global
-    log /dev/log    local0
-    log /dev/log    local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
-
-defaults
-    log global
-    mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-
+    # Check if the HAProxy configuration file exists
+    haproxy_cfg="/etc/haproxy/haproxy.cfg"
+    if [ -f "$haproxy_cfg" ]; then
+        # Backup the original HAProxy configuration file
+        sudo cp "$haproxy_cfg" "$haproxy_cfg.bak"
+        
+        # Append frontend and backend configurations
+        cat << EOF | sudo tee -a "$haproxy_cfg" > /dev/null
 frontend http_front
     bind *:80
     stats uri /haproxy?stats
@@ -40,17 +18,20 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server web-01 519510-web-01:80 check
-    server web-02 519510-web-02:80 check
+    server web-01 [STUDENT_ID]-web-01:80 check
+    server web-02 [STUDENT_ID]-web-02:80 check
 EOF
 
-    # Restart HAProxy service
-    sudo systemctl restart haproxy
+        # Restart HAProxy service
+        sudo systemctl restart haproxy
+    else
+        echo "HAProxy configuration file not found: $haproxy_cfg" >&2
+        exit 1
+    fi
 }
 
 # Main function
 main() {
-    install_haproxy
     configure_haproxy
 }
 
