@@ -1,129 +1,29 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with custom HTTP response header
 
-# First install nginx if it is not installed
-install_nginx() {
-    if ! command -v nginx &> /dev/null; then
-        echo "We are going to have to install nginx..."
-        sudo apt update
-        sudo apt install nginx -y
-    fi
+# List of servers
+servers=("519510-web-01" "519510-web-02")
+
+# Function to add custom header to Nginx configuration file
+add_custom_header() {
+    local server=$1
+    local header="add_header X-Served-By $(hostname);"
+    local config_file="/etc/nginx/sites-available/itaenang.tech"
+    
+    # SSH into the server and add the header to the Nginx config file
+    ssh $server "sudo sed -i '/server {/a $header' $config_file"
+    
+    # Restart Nginx to apply the changes using service command
+    ssh $server "sudo service nginx restart"
 }
 
-add_header() {
-    # Check for your hostname to know what server you're on
-    hostname=$(hostname)
-
-    # Locate the file to change
-    file="/etc/nginx/sites-available/itaenang.tech"
-
-    # Create the header
-    header="add_header X-Served-By $hostname;"
-
-    # Check if file exists and if it doesn't create it
-    if [ ! -f "$file" ]; then
-        echo "server {" | sudo tee "$file" > /dev/null
-        echo "    listen 80;" | sudo tee -a "$file" > /dev/null
-        echo "    server_name itaenang.tech www.itaenang.tech;" | sudo tee -a "$file" > /dev/null
-        echo "    $header" | sudo tee -a "$file" > /dev/null
-        echo "    root /var/www/html;" | sudo tee -a "$file" > /dev/null
-        echo "    index index.html index.htm;" | sudo tee -a "$file" > /dev/null
-        echo "" | sudo tee -a "$file" > /dev/null
-        echo "    location / {" | sudo tee -a "$file" > /dev/null
-        echo "        # Additional configuration directives if needed" | sudo tee -a "$file" > /dev/null
-        echo "    }" | sudo tee -a "$file" > /dev/null
-        echo "}" | sudo tee -a "$file" > /dev/null
-        sudo chmod 644 "$file"
-    fi
-
-    # Check if the file already contains the header
-    if ! grep -q "add_header X-Served-By" "$file"; then
-        echo "$header" | sudo tee -a "$file" > /dev/null
-    else
-        echo "Header already exists in the file." >&2
-    fi
-
-    # Create a symbolic link between the sites-available and sites-enabled directories
-    if [ ! -f "/etc/nginx/sites-enabled/itaenang.tech" ]; then
-        sudo ln -s "/etc/nginx/sites-available/itaenang.tech" "/etc/nginx/sites-enabled/itaenang.tech"
-    fi
+# Main function
+main() {
+    for server in "${servers[@]}"; do
+        echo "Adding custom header to Nginx configuration on $server..."
+        add_custom_header "$server"
+        echo "Custom header added to Nginx configuration on $server"
+    done
 }
 
-# scp_transfer() {
-#     # Check if the correct number of parameters is passed
-#     if [ "$#" -ne 4 ]; then
-#         echo "Usage: $0 PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
-#         exit 1
-#     fi
-
-#     # Assign parameters to variables
-#     file_path="$1"
-#     server_ip="$2"
-#     username="$3"
-#     ssh_key="$4"
-
-#     # Transfer the file using scp to the server's home directory
-#     scp -o StrictHostKeyChecking=no -i "$ssh_key" "$file_path" "$username"@"$server_ip":~/ || exit 1
-
-#     echo "File transferred successfully to $username@$server_ip:~/"
-# }
-
-create_index() {
-    echo "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
-}
-
-create_404() {
-    echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html >/dev/null
-}
-
-create_default() {
-    # Append the redirect configuration to the default Nginx configuration file
-    cat << EOF | sudo tee -a /etc/nginx/sites-available/default > /dev/null
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    server_name _;
-    root /var/www/html;
-    index index.html;
-
-    rewrite ^/redirect_me https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe permanent;
-
-    error_page 404 /404.html;
-
-    location / {
-        return 200 'Hello World!';
-        add_header Content-Type text/plain;
-    }
-
-    location = /404.html {
-        internal;
-    }
-
-    location /redirect_me {
-        return 301 https://youtube.com/@AfroPlayerOne?si=BueiWNt5G6RIRvJe;
-    }
-}
-EOF
-
-    # Reload Nginx to apply the changes
-    sudo service nginx reload
-}
-create_index
-
-create_404
-
-create_default
-
-install_nginx
-
-add_header
-
-# scp_transfer
-
-# Test Nginx configuration for syntax errors
-sudo nginx -t
-
-# Reload Nginx to apply the changes
-sudo service nginx reload
-
-echo "Server configured successfully!"
+main
