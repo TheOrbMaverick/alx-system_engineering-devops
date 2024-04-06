@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Script to configure HaProxy
 
-# Install haproxy
-sudo apt update
-sudo apt install -y haproxy
+# Check if HAProxy is installed
+if ! command -v haproxy &> /dev/null; then
+    # HAProxy is not installed, so install it
+    sudo apt update
+    sudo apt install -y haproxy
+fi
 
 # Check if the HAProxy configuration file exists
 haproxy_cfg="/etc/haproxy/haproxy.cfg"
