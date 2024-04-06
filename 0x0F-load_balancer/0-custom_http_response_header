@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Script to configure Nginx with custom HTTP response header
+# This script configures Nginx to add a custom HTTP header to its responses
 
-hostname=$(hostname)
-header="add_header X-Served-By $(hostname);"
-config_file="/etc/nginx/sites-available/itaenang.tech"
-
-# Append the header to the Nginx configuration file
-echo "$header" | sudo tee -a "$config_file" > /dev/null
-
-# Disable SC2154 Shellcheck warning
+# Retrieve the hostname
 # shellcheck disable=SC2154
+hostname=$(hostname)
+
+# Configure Nginx to add custom HTTP header
+echo "Adding custom HTTP header to Nginx configuration..."
+sudo sed -i "/server {/a \        add_header X-Served-By $hostname;" /etc/nginx/sites-available/itaenang.tech
+
+# Restart Nginx
+sudo systemctl restart nginx
+
+echo "Nginx configured successfully."
