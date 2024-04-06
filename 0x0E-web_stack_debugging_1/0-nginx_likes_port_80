@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Script to configure Nginx with custom HTTP response header
+
+# Step 1: Check Nginx configuration
+nginx_config="/etc/nginx/nginx.conf"
+if ! grep -q "listen 80;" "$nginx_config"; then
+    echo "listen 80;" | sudo tee -a "$nginx_config" > /dev/null
+fi
+
+# Step 2: Check Nginx service status
+if ! systemctl is-active --quiet nginx; then
+    sudo systemctl start nginx
+fi
+
+# Step 3: Check for conflicting services
+if sudo netstat -tuln | grep -q ":80 "; then
+    echo "Port 80 is already in use by another service."
+    exit 1
+fi
+
+# Step 4: Restart Nginx service
+sudo systemctl restart nginx
+
+echo "Nginx has been configured to listen on port 80."
