@@ -1,31 +1,12 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with custom HTTP response header
 
-# List of servers and corresponding IPs
-servers=("519510-web-01" "519510-web-02")
-ips=("35.174.200.243" "3.80.19.156")
+hostname=$(hostname)
+header="add_header X-Served-By $(hostname);"
+config_file="/etc/nginx/sites-available/itaenang.tech"
 
-# Function to add custom header to Nginx configuration file
-add_custom_header() {
-    local server=$1
-    local ip=$2
-    local header="add_header X-Served-By $(hostname);"
-    local config_file="/etc/nginx/sites-available/itaenang.tech"
-    
-    # SSH into the server and add the header to the Nginx config file
-    ssh ubuntu@$ip "sudo sed -i '/server {/a $header' $config_file"
-    
-    # Restart Nginx to apply the changes using service command
-    ssh ubuntu@$ip "sudo systemctl status nginx"
-}
+# Append the header to the Nginx configuration file
+echo "$header" | sudo tee -a "$config_file" > /dev/null
 
-# Main function
-main() {
-    for (( i=0; i<${#servers[@]}; i++ )); do
-        echo "Adding custom header to Nginx configuration on ${servers[i]}..."
-        add_custom_header "${servers[i]}" "${ips[i]}"
-        echo "Custom header added to Nginx configuration on ${servers[i]}"
-    done
-}
-
-main
+# Disable SC2154 Shellcheck warning
+# shellcheck disable=SC2154

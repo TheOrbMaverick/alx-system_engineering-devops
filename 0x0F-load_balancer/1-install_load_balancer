@@ -17,6 +17,7 @@ if [ -f "$haproxy_cfg" ]; then
     
     # Append frontend and backend configurations
     {
+        echo ""
         echo "frontend http_front"
         echo "    bind *:80"
         echo "    stats uri /haproxy?stats"
