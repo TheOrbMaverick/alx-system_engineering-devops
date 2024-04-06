@@ -1,24 +1,40 @@
 #!/usr/bin/env bash
-# Script to configure Nginx with custom HTTP response header
+# Script to configure Nginx with a custom HTTP response header
 
-# Step 1: Check Nginx configuration
-nginx_config="/etc/nginx/nginx.conf"
-if ! grep -q "listen 80;" "$nginx_config"; then
-    echo "listen 80;" | sudo tee -a "$nginx_config" > /dev/null
-fi
+# Add custom header to Nginx configuration file
+add_custom_header() {
+    # Check if the correct number of arguments is provided
+    if [ "$#" -ne 1 ]; then
+        echo "Usage: $0 CONFIG_FILE_PATH" >&2
+        exit 1
+    fi
 
-# Step 2: Check Nginx service status
-if ! systemctl is-active --quiet nginx; then
-    sudo systemctl start nginx
-fi
+    local config_file="$1"
+    local hostname=$(hostname)
+    local header="add_header X-Served-By $hostname;"
 
-# Step 3: Check for conflicting services
-if sudo netstat -tuln | grep -q ":80 "; then
-    echo "Port 80 is already in use by another service."
-    exit 1
-fi
+    # Add the header to the Nginx configuration file
+    if ! sudo sed -i "/server {/a $header" "$config_file"; then
+        echo "Failed to add custom header to $config_file" >&2
+        exit 1
+    fi
+}
 
-# Step 4: Restart Nginx service
-sudo systemctl restart nginx
+# Main function
+main() {
+    local config_file="/etc/nginx/sites-available/itaenang.tech"
 
-echo "Nginx has been configured to listen on port 80."
+    # Call the function to add the custom header
+    add_custom_header "$config_file"
+
+    # Reload Nginx to apply the changes
+    if ! sudo service nginx reload; then
+        echo "Failed to reload Nginx configuration" >&2
+        exit 1
+    fi
+
+    echo "Nginx configured successfully with custom HTTP response header"
+}
+
+# Call the main function
+main
