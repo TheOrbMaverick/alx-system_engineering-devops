@@ -10,7 +10,8 @@ add_custom_header() {
     fi
 
     local config_file="$1"
-    local hostname=$(hostname)
+    local hostname
+    hostname=$(hostname)
     local header="add_header X-Served-By $hostname;"
 
     # Add the header to the Nginx configuration file
