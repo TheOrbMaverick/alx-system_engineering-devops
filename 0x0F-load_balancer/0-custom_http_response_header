@@ -2,6 +2,7 @@
 # This script configures Nginx to add a custom HTTP header to its responses
 
 # Retrieve the hostname
+
 # shellcheck disable=SC2154
 hostname=$(hostname)
 
