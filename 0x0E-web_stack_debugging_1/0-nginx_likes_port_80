@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with a custom HTTP response header
 
-# Define the Nginx configuration file
-NGINX_CONF="/etc/nginx/nginx.conf"
+# Define variables
+NGINX_CONF="/etc/nginx/sites-available/default"
+PYTHON_APP_PORT=5000
 
 # Check if Nginx is installed
 if ! command -v nginx &> /dev/null; then
@@ -10,14 +11,38 @@ if ! command -v nginx &> /dev/null; then
     exit 1
 fi
 
-# Check if Nginx is already listening on port 80
-if grep -q "listen 80;" "$NGINX_CONF"; then
-    echo "Nginx is already configured to listen on port 80."
+# Check if the Nginx configuration file exists
+if [ ! -f "$NGINX_CONF" ]; then
+    echo "Nginx configuration file not found: $NGINX_CONF" >&2
+    exit 1
+fi
+
+# Check if the Python application is already configured to listen on port 5000
+if grep -q "listen $PYTHON_APP_PORT;" "$NGINX_CONF"; then
+    echo "Nginx is already configured to forward requests to port $PYTHON_APP_PORT."
     exit 0
 fi
 
-# Add configuration to listen on port 80 for all active IPv4 IPs
-sed -i "/http {/a \        server { listen 80; }" "$NGINX_CONF"
+# Add reverse proxy configuration to Nginx
+cat <<EOF | sudo tee -a "$NGINX_CONF" > /dev/null
+server {
+    listen 80;
+    server_name localhost;
 
-# Restart Nginx to apply the changes
-systemctl restart nginx
+    location / {
+        proxy_pass http://127.0.0.1:$PYTHON_APP_PORT;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+
+# Test Nginx configuration for syntax errors
+sudo nginx -t
+
+# Reload Nginx to apply the changes
+sudo systemctl reload nginx
+
+echo "Nginx has been configured as a reverse proxy to forward requests from port 80 to port $PYTHON_APP_PORT."
