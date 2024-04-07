@@ -16,20 +16,8 @@ if grep -q "listen 80;" "$NGINX_CONF"; then
     exit 0
 fi
 
-# Get the server's active IPv4 IPs
-ACTIVE_IPS=$(hostname -I | awk '{print $1}')
-
 # Add configuration to listen on port 80 for all active IPv4 IPs
-for ip in $ACTIVE_IPS; do
-    sed -i "/http {/a \    server { listen $ip:80; }" "$NGINX_CONF"
-done
+sed -i "/http {/a \        server { listen 80; }" "$NGINX_CONF"
 
 # Restart Nginx to apply the changes
 systemctl restart nginx
-
-# Verify Nginx is now listening on port 80
-if curl -sSf "http://localhost" &> /dev/null; then
-    echo "Nginx is now running and listening on port 80 for all active IPv4 IPs."
-else
-    echo "Failed to verify Nginx listening on port 80. Please check the configuration." >&2
-fi
