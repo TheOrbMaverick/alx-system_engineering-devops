@@ -1,41 +1,35 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with a custom HTTP response header
 
-# Add custom header to Nginx configuration file
-add_custom_header() {
-    # Check if the correct number of arguments is provided
-    if [ "$#" -ne 1 ]; then
-        echo "Usage: $0 CONFIG_FILE_PATH" >&2
-        exit 1
-    fi
+# Define the Nginx configuration file
+NGINX_CONF="/etc/nginx/nginx.conf"
 
-    local config_file="$1"
-    local hostname
-    hostname=$(hostname)
-    local header="add_header X-Served-By $hostname;"
+# Check if Nginx is installed
+if ! command -v nginx &> /dev/null; then
+    echo "Nginx is not installed. Please install Nginx first." >&2
+    exit 1
+fi
 
-    # Add the header to the Nginx configuration file
-    if ! sudo sed -i "/server {/a $header" "$config_file"; then
-        echo "Failed to add custom header to $config_file" >&2
-        exit 1
-    fi
-}
+# Check if Nginx is already listening on port 80
+if grep -q "listen 80;" "$NGINX_CONF"; then
+    echo "Nginx is already configured to listen on port 80."
+    exit 0
+fi
 
-# Main function
-main() {
-    local config_file="/etc/nginx/sites-available/itaenang.tech"
+# Get the server's active IPv4 IPs
+ACTIVE_IPS=$(hostname -I | awk '{print $1}')
 
-    # Call the function to add the custom header
-    add_custom_header "$config_file"
+# Add configuration to listen on port 80 for all active IPv4 IPs
+for ip in $ACTIVE_IPS; do
+    sed -i "/http {/a \    server { listen $ip:80; }" "$NGINX_CONF"
+done
 
-    # Reload Nginx to apply the changes
-    if ! sudo service nginx reload; then
-        echo "Failed to reload Nginx configuration" >&2
-        exit 1
-    fi
+# Restart Nginx to apply the changes
+systemctl restart nginx
 
-    echo "Nginx configured successfully with custom HTTP response header"
-}
-
-# Call the main function
-main
+# Verify Nginx is now listening on port 80
+if curl -sSf "http://localhost" &> /dev/null; then
+    echo "Nginx is now running and listening on port 80 for all active IPv4 IPs."
+else
+    echo "Failed to verify Nginx listening on port 80. Please check the configuration." >&2
+fi
