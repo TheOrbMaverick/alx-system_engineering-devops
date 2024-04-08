@@ -2,26 +2,20 @@
 # Script to configure Nginx with a custom HTTP response header
 
 # Define variables
-NGINX_CONF="/etc/nginx/nginx.conf"
-PYTHON_APP_PORT=5000
+nginx_conf="/etc/nginx/nginx.conf"
+python_app_port=5000
 
 # Check if Nginx is installed
-if ! command -v nginx &> /dev/null; then
+if ! type -P nginx >/dev/null; then
     echo "Nginx is not installed. Please install Nginx first." >&2
     exit 1
 fi
-
-# Check if the Python application is already configured to listen on port 5000
-# if grep -q "listen $PYTHON_APP_PORT;" "$NGINX_CONF"; then
-#     echo "Nginx is already configured to forward requests to port $PYTHON_APP_PORT."
-#     exit 0
-# fi
 
 # Text to be added after the first }
 text_to_add="server {\n    Listen 80\n}\n"
 
 # Use sed to find the first occurrence of } and append text after it
-sed -i '0,/}/s/}/}\n\n'"$text_to_add"/ "$NGINX_CONF"
+sed -i "0,/^}/{s/^}/{\n\n$text_to_add/}" "$nginx_conf"
 
 # Test Nginx configuration for syntax errors
 sudo nginx -t
