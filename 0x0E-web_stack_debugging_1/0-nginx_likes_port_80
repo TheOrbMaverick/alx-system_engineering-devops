@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with a custom HTTP response header
                                                                                                                             
-sudo rm /etc/nginx/sites-enabled/default;
+cd /etc/nginx/sites-enabled/ || exit;                                                                                                                             
+                                                                                                                              
+rm default;
 
-sudo ln -s /etc/nginx/sites-available/default default;
-
-service nginx restart 
+ln -s /etc/nginx/sites-available/default default;
+                                                                                                                                         
+service nginx restart
