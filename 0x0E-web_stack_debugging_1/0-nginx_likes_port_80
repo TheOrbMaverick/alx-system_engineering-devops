@@ -1,23 +1,9 @@
 #!/usr/bin/env bash
 # Script to configure Nginx with a custom HTTP response header
+                                                                                                                            
+rm /etc/nginx/sites-enabled/default;
 
-# Define variables
-nginx_conf="/etc/nginx/nginx.conf"
+# Symbolic link
+ln -s /etc/nginx/sites-available/default default;
 
-# Check if Nginx is installed
-if ! type -P nginx >/dev/null; then
-    echo "Nginx is not installed. Please install Nginx first." >&2
-    exit 1
-fi
-
-# Text to be added after the first }
-text_to_add="server {\n    Listen 80\n}\n"
-
-# Use sed to find the first occurrence of } and append text after it
-sed -i "0,/^}/{s/^}/{\n\n$text_to_add/}" "$nginx_conf"
-
-# Test Nginx configuration for syntax errors
-sudo nginx -t
-
-# Reload Nginx to apply the changes
-sudo systemctl reload nginx
+service nginx restart 
