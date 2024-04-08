@@ -3,7 +3,6 @@
 
 # Define variables
 nginx_conf="/etc/nginx/nginx.conf"
-python_app_port=5000
 
 # Check if Nginx is installed
 if ! type -P nginx >/dev/null; then
