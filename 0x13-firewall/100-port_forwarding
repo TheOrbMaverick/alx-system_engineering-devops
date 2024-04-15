@@ -6,7 +6,7 @@ sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
 sudo ufw allow 8080/TCP
-sudo ufw route allow proto tcp from any to any port 8080 to any port 80
+sudo ufw route allow in on 8080/tcp out on 80/tcp
 sudo systemctl start ufw
 sudo ufw enable
 sudo ufw status
