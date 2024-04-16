@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
+# This script gets the present user
 
 sudo -u "$1" whoami
