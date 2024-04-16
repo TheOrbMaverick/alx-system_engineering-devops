@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # This script configures Nginx to run as the nginx user and listen on port 8080
 
+conFile='/etc/nginx/sites-available/default'
 
 # Change the user directive in nginx.conf to nginx
 sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
@@ -9,15 +10,7 @@ sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
 chmod 777 /etc/nginx/nginx.conf
 
 # Modify the default server block to listen on port 8080
-sed -i 's/80/8080/g' /etc/nginx/sites-available/default
+sed -i 's/80/8080/g' $conFile
 
 # Restart Nginx to apply the changes
 service nginx restart
-
-
-RUN chown -R nginx:nginx /app && chmod -R 755 /app && \
-        chown -R nginx:nginx /var/cache/nginx && \
-        chown -R nginx:nginx /var/log/nginx && \
-        chown -R nginx:nginx /etc/nginx/conf.d
-RUN touch /var/run/nginx.pid && \
-        chown -R nginx:nginx /var/run/nginx.pid
