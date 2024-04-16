@@ -3,14 +3,14 @@
 
 conFile='/etc/nginx/sites-available/default'
 
-# Change the user directive in nginx.conf to nginx
-sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
-
 # Allow everyone to modify the file
 chmod 777 /etc/nginx/nginx.conf
 
 # Modify the default server block to listen on port 8080
 sed -i 's/80/8080/g' $conFile
+
+# Change user to nginx
+sudo -u nginx
 
 # Restart Nginx to apply the changes
 service nginx restart
