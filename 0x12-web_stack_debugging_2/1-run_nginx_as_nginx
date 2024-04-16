@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 # This script configures Nginx to run as the nginx user and listen on port 8080
 
-# kill apache2 server
-pkill -f apache2
-
+# Make the file read and writeable for everyone
 chmod 777 /etc/nginx/nginx.conf
 
 # update listening ports
