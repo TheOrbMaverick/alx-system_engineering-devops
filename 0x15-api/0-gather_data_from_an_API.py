@@ -7,9 +7,13 @@ import sys
 
 def employee_todo(employeeID):
     """Retrieve employee TODO list progress from API"""
-    url = "https://jsonplaceholder.typicode.com/todos?userId={}".format(employeeID)
+    url = "https://jsonplaceholder.typicode.com/todos?userId={}".format(
+        employeeID
+        )
 
-    userUrl = "https://jsonplaceholder.typicode.com/users?id={}".format(employeeID)
+    userUrl = "https://jsonplaceholder.typicode.com/users?id={}".format(
+        employeeID
+        )
     nameResponse = requests.get(userUrl)
     name = nameResponse.json()
     employee_name = name[0]["name"]
@@ -18,12 +22,12 @@ def employee_todo(employeeID):
     if response.status_code != 200:
         print("Error: Unable to fetch data from API")
         return
-    
+
     todos = response.json()
     if not todos:
         print("No data available for employee ID:", employeeID)
         return
-    
+
     completed_tasks = 0
     total_tasks = len(todos)
 
@@ -33,7 +37,9 @@ def employee_todo(employeeID):
             completed_tasks += 1
             completed_task_titles.append(todo['title'])
 
-    print("Employee {} is done with tasks({}/{}):".format(employee_name, completed_tasks, total_tasks))
+    print("Employee {} is done with tasks({}/{}):".format(
+        employee_name, completed_tasks, total_tasks
+        ))
     for title in completed_task_titles:
         print("\t{}".format(title))
 
