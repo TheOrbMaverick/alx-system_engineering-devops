@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 """ Gather data from an API """
 
-import sys
 import requests
+import sys
+
 
 def employee_todo(employeeID):
     """Retrieve employee TODO list progress from API"""
@@ -35,6 +36,7 @@ def employee_todo(employeeID):
     print("Employee {} is done with tasks({}/{}):".format(employee_name, completed_tasks, total_tasks))
     for title in completed_task_titles:
         print("\t{}".format(title))
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
