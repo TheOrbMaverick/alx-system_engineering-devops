@@ -41,13 +41,13 @@ def employee_todo(employeeID):
         employee_name, completed_tasks, total_tasks
         ))
     for title in completed_task_titles:
-        print("\t{}".format(title))
+        print("\t {}".format(title))
 
-    output_filename = "employee_todo_{}.txt".format(employeeID)
-    with open(output_filename, "w") as file:
-        file.write("Employee {} is done with tasks({}/{}):\n".format(employee_name, completed_tasks, total_tasks))
-        for title in completed_task_titles:
-            file.write("\t{}\n".format(title))
+    # output_filename = "employee_todo_{}.txt".format(employeeID)
+    # with open(output_filename, "w") as file:
+    #     file.write("Employee {} is done with tasks({}/{}):\n".format(employee_name, completed_tasks, total_tasks))
+    #     for title in completed_task_titles:
+    #         file.write("\t{}\n".format(title))
 
 
 if __name__ == "__main__":
