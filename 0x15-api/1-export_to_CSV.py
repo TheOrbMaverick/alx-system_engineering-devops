@@ -31,7 +31,7 @@ def employee_todo(employeeID):
     output_file = "{}.csv".format(employeeID)
     with open(output_file, "w", newline="") as file:
         for todo in todos:
-            file.write('"{}", "{}", "{}", "{}"\n'.format(
+            file.write('"{}","{}","{}","{}"\n'.format(
                 employeeID, employee_name, todo['completed'], todo['title']
                 ))
 
