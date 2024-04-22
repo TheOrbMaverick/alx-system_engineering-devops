@@ -55,4 +55,6 @@ if __name__ == "__main__":
         print("Error: Employee ID must be an integer")
         sys.exit(1)
 
+    sys.stdout = open('student_output', 'w')
+
     employee_todo(int(employeeID))
