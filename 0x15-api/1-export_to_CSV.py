@@ -16,7 +16,7 @@ def employee_todo(employeeID):
         )
     nameResponse = requests.get(userUrl)
     name = nameResponse.json()
-    employee_name = name[0]["name"]
+    employee_name = name[0]["username"]
 
     response = requests.get(url)
     if response.status_code != 200:
