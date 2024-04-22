@@ -28,16 +28,14 @@ def employee_todo(employeeID):
 
     for todo in todos:
         if todo['completed'] == True:
-            completed_tasks = completed_tasks +1
+            completed_tasks += 1
 
     print("Employee {} is done with tasks({}/{})".format(employee_name, completed_tasks, total_tasks))
     for todo in todos:
         if todo['completed'] == True:
             print("    {}".format(todo['title']))
 
-
 if __name__ == "__main__":
-
     if len(sys.argv) != 2:
         print("Usage: {} <employee_id>".format(sys.argv[0]))
         sys.exit(1)
