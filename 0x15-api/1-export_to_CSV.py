@@ -28,21 +28,6 @@ def employee_todo(employeeID):
         print("No data available for employee ID:", employeeID)
         return
 
-    completed_tasks = 0
-    total_tasks = len(todos)
-
-    completed_task_titles = []
-    for todo in todos:
-        if todo['completed']:
-            completed_tasks += 1
-            completed_task_titles.append(todo['title'])
-
-    print("Employee {} is done with tasks({}/{}):".format(
-        employee_name, completed_tasks, total_tasks
-        ))
-    for title in completed_task_titles:
-        print("\t {}".format(title))
-
     output_file = "{}.csv".format(employeeID)
     with open(output_file, "w", newline="") as file:
         for todo in todos:
