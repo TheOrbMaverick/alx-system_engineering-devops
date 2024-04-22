@@ -45,7 +45,9 @@ def employee_todo(employeeID):
 
     # output_filename = "employee_todo_{}.txt".format(employeeID)
     # with open(output_filename, "w") as file:
-    #     file.write("Employee {} is done with tasks({}/{}):\n".format(employee_name, completed_tasks, total_tasks))
+    #     file.write("Employee {} is done with tasks({}/{}):\n".format(
+    #         employee_name, completed_tasks, total_tasks
+    #         ))
     #     for title in completed_task_titles:
     #         file.write("\t{}\n".format(title))
 
