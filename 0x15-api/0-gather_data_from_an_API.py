@@ -17,11 +17,11 @@ if __name__ == "__main__":
 
     url = "https://jsonplaceholder.typicode.com/todos?userId={}".format(employeeID)
     userUrl = "https://jsonplaceholder.typicode.com/users?id={}".format(employeeID)
-    nameResponse = requests.get(userUrl)
+    nameResponse = requests.get(userUrl, verify=False)
     name = nameResponse.json()
     employee_name = name[0]["username"]
 
-    response = requests.get(url)
+    response = requests.get(url, verify=False)
     if response.status_code != 200:
         print("Error: Unable to fetch data from API")
         sys.exit(1)
