@@ -13,17 +13,16 @@ def number_of_subscribers(subreddit):
     Function that queries the Reddit API
     """
 
-    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
-
+    url = f"https://www.reddit.com/r/{subreddit}/about.json"
     headers = {'User-Agent': 'My User Agent 1.0'}
 
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        subscribers = data['data']['subscribers']
 
-    returned_data = response.json()
+    except (requests.RequestException, KeyError):
+        subscribers = 0
 
-    print(returned_data)
-
-    if "data" in returned_data and "subscribers" in returned_data["data"]:
-        return returned_data["data"]["subscribers"]
-    else:
-        return (0)
+    return subscribers
