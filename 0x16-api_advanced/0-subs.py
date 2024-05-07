@@ -14,7 +14,7 @@ def number_of_subscribers(subreddit):
     """
 
     url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
-    headers = {'User-Agent': 'My User Agent 1.0'}
+    headers = {'User-Agent': 'u/uniqueagent'}
 
     try:
         response = requests.get(url, headers=headers)
@@ -26,11 +26,3 @@ def number_of_subscribers(subreddit):
         subscribers = 0
 
     return subscribers
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Please pass an argument for the subreddit to search.")
-    else:
-        subreddit = sys.argv[1]
-        print(number_of_subscribers(subreddit))
