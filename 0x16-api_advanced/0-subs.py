@@ -14,10 +14,10 @@ def number_of_subscribers(subreddit):
     """
 
     url = f"https://www.reddit.com/r/{subreddit}/about.json"
-    headers = {'User-Agent': 'My User Agent 1.0'}
+    # headers = {'User-Agent': 'My User Agent 1.0'}
 
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url)
         response.raise_for_status()
         data = response.json()
         subscribers = data['data']['subscribers']
