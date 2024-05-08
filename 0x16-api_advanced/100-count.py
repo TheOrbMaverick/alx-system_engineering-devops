@@ -10,6 +10,7 @@ import requests
 
 
 def count_words(subreddit, word_list, after=None, counts=None):
+    """ A function that returns the count"""
     if counts is None:
         counts = Counter()
 
@@ -38,7 +39,7 @@ def count_words(subreddit, word_list, after=None, counts=None):
         if after:
             count_words(subreddit, word_list, after, counts)
         else:
-            sorted_counts = sorted(counts.items(), key=lambda x: (-x[1], x[0]))
+            sorted_counts = sorted(counts.items())
             for word, count in sorted_counts:
                 print(f"{word}: {count}")
     else:
