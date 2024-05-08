@@ -1,16 +1,20 @@
-# Fix Apache configuration or permissions issue
-file { '/path/to/affected/file':
-  ensure  => 'file',
-  owner   => 'www-data',
-  group   => 'www-data',
-  mode    => '0644',
-  content => template('apache/affected_file.erb'),
+# Fix Apache configuration to resolve 500 error
+
+# Ensure Apache package is installed
+package { 'apache2':
+  ensure => 'installed',
 }
 
-# Ensure Apache service is restarted after the configuration change
+# Ensure Apache service is running and enabled
 service { 'apache2':
-  ensure    => 'running',
-  enable    => true,
-  provider  => 'init',
-  subscribe => File['/path/to/affected/file'],
+  ensure  => 'running',
+  enable  => true,
+  require => Package['apache2'],
+}
+
+# Manage Apache configuration file (e.g., /etc/apache2/apache2.conf)
+file { '/etc/apache2/apache2.conf':
+  ensure  => file,
+  content => template('apache/apache2.conf.erb'), # Use a template to manage configuration content
+  notify  => Service['apache2'],
 }
