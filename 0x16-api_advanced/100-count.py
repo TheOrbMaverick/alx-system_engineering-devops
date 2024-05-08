@@ -5,8 +5,8 @@ and returns a list containing the titles of all hot
 articles for a given subreddit
 """
 
-import requests
 from collections import Counter
+import requests
 
 
 def count_words(subreddit, word_list, after=None, counts=None):
