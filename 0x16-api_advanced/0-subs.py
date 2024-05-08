@@ -9,14 +9,19 @@ import requests
 
 
 def number_of_subscribers(subreddit):
-    url = f'https://www.reddit.com/r/{subreddit}/about.json'
-    headers = {'User-Agent': 'by u/qasqot79'}  # Set a custom User-Agent to avoid issues
+    """
+    Function that queries the Reddit API
+    """
 
-    response = requests.get(url, headers=headers)
+    url = f"https://www.reddit.com/r/{subreddit}/about.json"
+    headers = {'User-Agent': 'by u/UniqueAgent-007'}
 
-    if response.status_code == 200:
+    try:
+        response = requests.get(url, allow_redirects=False, headers=headers)
+        response.raise_for_status()
         data = response.json()
         subscribers = data['data']['subscribers']
         return subscribers
-    else:
+
+    except requests.RequestException as e:
         return 0
