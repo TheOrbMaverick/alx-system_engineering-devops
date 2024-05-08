@@ -14,14 +14,15 @@ def number_of_subscribers(subreddit):
     """
 
     url = f"https://www.reddit.com/r/{subreddit}/about.json"
-    headers = {'User-Agent': 'by u/UniqueAgent-007'}
+    headers = {'User-Agent': 'MyBot/1.0 (by /u/MyUsername)'}
 
     try:
-        response = requests.get(url, allow_redirects=False, headers=headers)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
         subscribers = data['data']['subscribers']
         return subscribers
 
     except requests.RequestException as e:
+        print(f"Error querying subreddit '{subreddit}': {e}")
         return 0
