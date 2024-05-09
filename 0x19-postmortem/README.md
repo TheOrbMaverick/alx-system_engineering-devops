@@ -30,7 +30,4 @@ TODO:
 - Pay for most affordable server.
 - Migrate to those servers
 
-
-![alt text](https://github.com/TheOrbMaverick/alx-system_engineering-devops/0x19-postmortem/main/img1.jpg?raw=true)
-
-![alt text](https://github.com/TheOrbMaverick/alx-system_engineering-devops/0x19-postmortem/main/img2.png?raw=true)
+![ry4wE7m](https://github.com/TheOrbMaverick/alx-system_engineering-devops/assets/39674670/170fb401-c4a0-4a00-bd1e-df9a4d37a402)
